@@ -37,6 +37,12 @@ lib/
 - Responsive design for all screen sizes
 - Minimalist elegant design
 
+## Level Design Principles
+Each level is designed with:
+- At least one arrow that has a clear path to exit (no obstacles in its direction)
+- Blocking dependencies where arrows in the same row/column must be cleared in order
+- Progressive difficulty from single arrows to complex multi-chain puzzles
+
 ## Development
 
 ### Building
@@ -60,6 +66,10 @@ python serve.py
 - Animation: AnimatedPositioned for smooth arrow movement
 
 ## Recent Changes
+- January 30, 2026: Redesigned all 20 levels to ensure solvability
+  - Each level has clear blocking dependencies
+  - Arrows with free paths exit first, unblocking others
+  - Progressive difficulty from tutorial to complex multi-chain puzzles
 - January 30, 2026: Built complete Arrows Puzzle game clone
   - Created arrow and level data models
   - Implemented game controller with collision detection
