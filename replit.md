@@ -1,42 +1,70 @@
-# ArrowPro - Flutter Web Application
+# Arrows Puzzle - Flutter Web Game
 
 ## Overview
-This is a Flutter web application called "ArrowPro" - an arrows game built with Flutter.
+Clone of "Arrows – Puzzle Escape" - a minimalist logic puzzle game where players must clear arrows from a grid by tapping them in the correct order to avoid collisions.
+
+## How to Play
+1. Tap an arrow to make it move in the direction it points
+2. Arrows move until they exit the grid
+3. If an arrow hits another arrow, you lose
+4. Clear all arrows without collisions to win the level
+5. Progress through 20 levels of increasing difficulty
 
 ## Project Structure
-- `lib/` - Dart source code
-  - `main.dart` - Main application entry point
-- `web/` - Web-specific assets (HTML, manifest, icons)
-- `build/web/` - Compiled web application (generated)
-- `serve.py` - Python HTTP server for serving the built app
-- `pubspec.yaml` - Flutter/Dart package configuration
+```
+lib/
+├── main.dart              # App entry point with theme management
+├── models/
+│   ├── arrow.dart         # Arrow data model (direction, position)
+│   └── level.dart         # Level data model
+├── game/
+│   ├── game_controller.dart   # Game logic (movement, collision, win/lose)
+│   └── levels_data.dart       # 20 hand-crafted puzzle levels
+├── screens/
+│   └── game_screen.dart   # Main game UI with overlays
+└── widgets/
+    ├── arrow_widget.dart  # Individual arrow rendering
+    └── game_board.dart    # Grid and arrow positioning
+```
+
+## Features
+- 20 puzzle levels with progressive difficulty
+- Animated arrow movement
+- Collision detection
+- Win/lose overlays with replay options
+- Level selector
+- Dark/light theme toggle
+- Responsive design for all screen sizes
+- Minimalist elegant design
 
 ## Development
 
-### Building the App
+### Building
 ```bash
 flutter build web --release --base-href "/"
 ```
 
-### Running Locally
-The app is served using a Python HTTP server on port 5000:
+### Running
 ```bash
 python serve.py
 ```
 
 ### Dependencies
 - Flutter SDK (via Nix)
-- Dart SDK (via Flutter)
-- Python 3.11 (for serving)
+- Python 3.11 (for serving static files)
 
-## Architecture
-- Standard Flutter web application using Material Design
-- Built with release configuration for optimal performance
-- Served via Python's built-in HTTP server with cache control headers
+## Technical Details
+- Framework: Flutter 3.32.0
+- Platform: Web
+- State Management: Simple controller pattern with streams
+- Animation: AnimatedPositioned for smooth arrow movement
 
 ## Recent Changes
-- January 30, 2026: Initial Replit environment setup
-  - Installed Flutter via Nix packages
-  - Fixed SDK version constraints for compatibility
-  - Created Python server for web deployment
-  - Built Flutter web app for production
+- January 30, 2026: Built complete Arrows Puzzle game clone
+  - Created arrow and level data models
+  - Implemented game controller with collision detection
+  - Built responsive game board with grid
+  - Added animated arrow widgets
+  - Created 20 puzzle levels
+  - Added win/lose overlays
+  - Implemented level selector and theme toggle
