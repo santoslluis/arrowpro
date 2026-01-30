@@ -36,6 +36,10 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_controller.gameState == GameState.loading) {
+      return _buildLoadingScreen();
+    }
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -57,6 +61,62 @@ class _GameScreenState extends State<GameScreen> {
             ),
             _buildFooter(),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingScreen() {
+    final progress = _controller.loadingProgress;
+    final total = _controller.loadingTotal;
+    final progressPercent = total > 0 ? progress / total : 0.0;
+
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(48),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.arrow_forward_rounded,
+                size: 80,
+                color: Theme.of(context).primaryColor,
+              ),
+              const SizedBox(height: 32),
+              Text(
+                'Generating Puzzles',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Creating unique solvable levels...',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: 200,
+                child: Column(
+                  children: [
+                    LinearProgressIndicator(
+                      value: progressPercent,
+                      backgroundColor: Theme.of(context).dividerColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Level $progress of $total',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -113,6 +173,17 @@ class _GameScreenState extends State<GameScreen> {
             icon: const Icon(Icons.refresh),
             label: const Text('Restart'),
             style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+          ),
+          const SizedBox(width: 16),
+          OutlinedButton.icon(
+            onPressed: () {
+              _controller.regenerateLevels();
+            },
+            icon: const Icon(Icons.shuffle),
+            label: const Text('New Puzzles'),
+            style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),

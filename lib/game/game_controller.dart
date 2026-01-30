@@ -3,16 +3,18 @@ import '../models/arrow.dart';
 import '../models/level.dart';
 import 'levels_data.dart';
 
-enum GameState { playing, won, lost }
+enum GameState { loading, playing, won, lost }
 
 class GameController {
-  final List<Level> _allLevels = LevelsData.getAllLevels();
+  List<Level> _allLevels = [];
   int _currentLevelIndex = 0;
-  late List<Arrow> _arrows;
-  late int _rows;
-  late int _cols;
-  GameState _gameState = GameState.playing;
+  List<Arrow> _arrows = [];
+  int _rows = 0;
+  int _cols = 0;
+  GameState _gameState = GameState.loading;
   Arrow? _movingArrow;
+  int _loadingProgress = 0;
+  int _loadingTotal = 20;
   
   final StreamController<void> _updateController = StreamController<void>.broadcast();
   Stream<void> get onUpdate => _updateController.stream;
@@ -24,12 +26,31 @@ class GameController {
   int get cols => _cols;
   GameState get gameState => _gameState;
   Arrow? get movingArrow => _movingArrow;
+  int get loadingProgress => _loadingProgress;
+  int get loadingTotal => _loadingTotal;
 
   GameController() {
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    _gameState = GameState.loading;
+    _updateController.add(null);
+    
+    _allLevels = await LevelsData.generateAllLevels(
+      onProgress: (current, total) {
+        _loadingProgress = current;
+        _loadingTotal = total;
+        _updateController.add(null);
+      },
+    );
+    
     _loadLevel(_currentLevelIndex);
   }
 
   void _loadLevel(int index) {
+    if (_allLevels.isEmpty) return;
+    
     final level = _allLevels[index];
     _rows = level.rows;
     _cols = level.cols;
@@ -60,6 +81,12 @@ class GameController {
       _currentLevelIndex = levelNumber - 1;
       _loadLevel(_currentLevelIndex);
     }
+  }
+
+  Future<void> regenerateLevels() async {
+    LevelsData.clearCache();
+    _currentLevelIndex = 0;
+    await _initialize();
   }
 
   bool canTapArrow(Arrow arrow) {
