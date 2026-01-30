@@ -15,8 +15,11 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Expires', '0')
         super().end_headers()
 
+class ReuseAddrTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
+
 if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.abspath(__file__)) or '.')
-    with socketserver.TCPServer(("0.0.0.0", PORT), NoCacheHandler) as httpd:
+    with ReuseAddrTCPServer(("0.0.0.0", PORT), NoCacheHandler) as httpd:
         print(f"Serving Flutter web app at http://0.0.0.0:{PORT}")
         httpd.serve_forever()
