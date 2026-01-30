@@ -67,10 +67,6 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _buildLoadingScreen() {
-    final progress = _controller.loadingProgress;
-    final total = _controller.loadingTotal;
-    final progressPercent = total > 0 ? progress / total : 0.0;
-
     return Scaffold(
       body: Center(
         child: Padding(
@@ -85,35 +81,22 @@ class _GameScreenState extends State<GameScreen> {
               ),
               const SizedBox(height: 32),
               Text(
-                'Generating Puzzles',
+                'Level ${_controller.currentLevelNumber}',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Creating unique solvable levels...',
+                _controller.loadingStatus,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                 ),
               ),
               const SizedBox(height: 32),
-              SizedBox(
+              const SizedBox(
                 width: 200,
-                child: Column(
-                  children: [
-                    LinearProgressIndicator(
-                      value: progressPercent,
-                      backgroundColor: Theme.of(context).dividerColor,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Level $progress of $total',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
+                child: LinearProgressIndicator(),
               ),
             ],
           ),
@@ -179,10 +162,10 @@ class _GameScreenState extends State<GameScreen> {
           const SizedBox(width: 16),
           OutlinedButton.icon(
             onPressed: () {
-              _controller.regenerateLevels();
+              _controller.regenerateCurrentLevel();
             },
             icon: const Icon(Icons.shuffle),
-            label: const Text('New Puzzles'),
+            label: const Text('New Puzzle'),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),

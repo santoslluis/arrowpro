@@ -20,7 +20,7 @@ lib/
 ├── game/
 │   ├── game_controller.dart   # Game logic (movement, collision, win/lose)
 │   ├── level_generator.dart   # Algorithmic level generation with backtracking
-│   └── levels_data.dart       # Level caching and generation orchestration
+│   └── levels_data.dart       # On-the-fly level generation and caching
 ├── screens/
 │   └── game_screen.dart   # Main game UI with loading screen and overlays
 └── widgets/
@@ -30,30 +30,28 @@ lib/
 
 ## Features
 - 20 puzzle levels with progressive difficulty
-- Algorithmic level generation (random placement + backtracking validation)
-- Loading screen with progress indicator during level generation
+- On-the-fly level generation (each level generated when you enter it)
+- Level N has N arrows (Level 1 = 1 arrow, Level 20 = 20 arrows)
+- Backtracking solver validates solvability before presenting level
+- Loading indicator during level generation
 - Animated arrow movement
 - Collision detection
 - Win/lose overlays with replay options
 - Level selector
-- "New Puzzles" button to regenerate all levels
+- "New Puzzle" button to regenerate current level
 - Dark/light theme toggle
 - Responsive design for all screen sizes
-- Minimalist elegant design
 
 ## Level Generation System
-The game uses an algorithmic approach to generate levels:
-1. Random arrow placement on the grid
-2. Backtracking solver validates solvability
-3. If not solvable, regenerates with new random placement
-4. Difficulty progression increases grid size and arrow count
-
-### Difficulty Progression
-- Levels 1-5: 3x3 to 4x4 grids, 2-5 arrows
-- Levels 6-9: 5x5 grids, 4-7 arrows
-- Levels 10-13: 6x6 grids, 5-8 arrows
-- Levels 14-16: 7x7 grids, 6-8 arrows
-- Levels 17-20: 8x8 grids, 6-9 arrows
+- Levels are generated on-the-fly when entering each level
+- Random arrow placement with backtracking validation
+- Level N = N arrows (progressive difficulty)
+- Grid size scales with arrow count:
+  - Levels 1-3: 4x4 grid
+  - Levels 4-6: 5x5 grid
+  - Levels 7-10: 6x6 grid
+  - Levels 11-15: 7x7 grid
+  - Levels 16-20: 8x8 grid
 
 ## Development
 
@@ -79,15 +77,11 @@ python serve.py
 - Level Generation: Random placement + backtracking solver
 
 ## Recent Changes
+- January 30, 2026: On-the-fly level generation
+  - Levels generated when entering (not all at once)
+  - Level N = N arrows
+  - Level 20 has 20 arrows on 8x8 grid
 - January 30, 2026: Implemented algorithmic level generation
   - LevelGenerator creates random arrow placements
   - PuzzleSolver uses backtracking to validate solvability
-  - Loading screen shows progress during generation
-  - "New Puzzles" button allows regenerating levels
 - January 30, 2026: Built complete Arrows Puzzle game clone
-  - Created arrow and level data models
-  - Implemented game controller with collision detection
-  - Built responsive game board with grid
-  - Added animated arrow widgets
-  - Added win/lose overlays
-  - Implemented level selector and theme toggle

@@ -6,52 +6,47 @@ import 'levels_data.dart';
 enum GameState { loading, playing, won, lost }
 
 class GameController {
-  List<Level> _allLevels = [];
   int _currentLevelIndex = 0;
   List<Arrow> _arrows = [];
   int _rows = 0;
   int _cols = 0;
   GameState _gameState = GameState.loading;
   Arrow? _movingArrow;
-  int _loadingProgress = 0;
-  int _loadingTotal = 20;
+  String _loadingStatus = '';
   
   final StreamController<void> _updateController = StreamController<void>.broadcast();
   Stream<void> get onUpdate => _updateController.stream;
 
   int get currentLevelNumber => _currentLevelIndex + 1;
-  int get totalLevels => _allLevels.length;
+  int get totalLevels => LevelsData.totalLevels;
   List<Arrow> get arrows => _arrows.where((a) => !a.isRemoved).toList();
   int get rows => _rows;
   int get cols => _cols;
   GameState get gameState => _gameState;
   Arrow? get movingArrow => _movingArrow;
-  int get loadingProgress => _loadingProgress;
-  int get loadingTotal => _loadingTotal;
+  String get loadingStatus => _loadingStatus;
 
   GameController() {
-    _initialize();
+    _loadCurrentLevel();
   }
 
-  Future<void> _initialize() async {
+  Future<void> _loadCurrentLevel() async {
     _gameState = GameState.loading;
+    _loadingStatus = 'Generating level ${currentLevelNumber}...';
     _updateController.add(null);
     
-    _allLevels = await LevelsData.generateAllLevels(
-      onProgress: (current, total) {
-        _loadingProgress = current;
-        _loadingTotal = total;
+    final level = await LevelsData.generateLevel(
+      currentLevelNumber,
+      onStatus: (status) {
+        _loadingStatus = status;
         _updateController.add(null);
       },
     );
     
-    _loadLevel(_currentLevelIndex);
+    _setLevel(level);
   }
 
-  void _loadLevel(int index) {
-    if (_allLevels.isEmpty) return;
-    
-    final level = _allLevels[index];
+  void _setLevel(Level level) {
     _rows = level.rows;
     _cols = level.cols;
     _arrows = level.arrows.map((a) => Arrow(
@@ -66,27 +61,36 @@ class GameController {
   }
 
   void restartLevel() {
-    _loadLevel(_currentLevelIndex);
+    if (LevelsData.hasLevelCached(currentLevelNumber)) {
+      LevelsData.generateLevel(currentLevelNumber).then(_setLevel);
+    } else {
+      _loadCurrentLevel();
+    }
   }
 
   void nextLevel() {
-    if (_currentLevelIndex < _allLevels.length - 1) {
+    if (_currentLevelIndex < totalLevels - 1) {
       _currentLevelIndex++;
-      _loadLevel(_currentLevelIndex);
+      _loadCurrentLevel();
     }
   }
 
   void goToLevel(int levelNumber) {
-    if (levelNumber >= 1 && levelNumber <= _allLevels.length) {
+    if (levelNumber >= 1 && levelNumber <= totalLevels) {
       _currentLevelIndex = levelNumber - 1;
-      _loadLevel(_currentLevelIndex);
+      _loadCurrentLevel();
     }
   }
 
-  Future<void> regenerateLevels() async {
-    LevelsData.clearCache();
+  Future<void> regenerateCurrentLevel() async {
+    LevelsData.clearLevelCache(currentLevelNumber);
+    await _loadCurrentLevel();
+  }
+
+  Future<void> regenerateAllLevels() async {
+    LevelsData.clearAllCache();
     _currentLevelIndex = 0;
-    await _initialize();
+    await _loadCurrentLevel();
   }
 
   bool canTapArrow(Arrow arrow) {

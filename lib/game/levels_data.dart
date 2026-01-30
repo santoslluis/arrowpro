@@ -3,50 +3,67 @@ import 'level_generator.dart';
 
 class LevelsData {
   static final LevelGenerator _generator = LevelGenerator();
-  static List<Level>? _cachedLevels;
-  static bool _isGenerating = false;
+  static final Map<int, Level> _cachedLevels = {};
 
-  static Future<List<Level>> generateAllLevels({
-    Function(int current, int total)? onProgress,
+  static Future<Level> generateLevel(int levelNumber, {
+    Function(String status)? onStatus,
   }) async {
-    if (_cachedLevels != null) {
-      return _cachedLevels!;
+    if (_cachedLevels.containsKey(levelNumber)) {
+      return _cachedLevels[levelNumber]!;
     }
 
-    if (_isGenerating) {
-      while (_isGenerating) {
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
-      return _cachedLevels!;
-    }
-
-    _isGenerating = true;
-    final levels = <Level>[];
-    final progression = LevelGenerator.getDifficultyProgression();
-
-    for (int i = 0; i < progression.length; i++) {
-      final config = progression[i];
-      onProgress?.call(i + 1, progression.length);
-      
-      final level = await _generator.generateLevel(
-        levelId: i + 1,
-        rows: config['rows']!,
-        cols: config['cols']!,
-        arrowCount: config['arrows']!,
-      );
-      levels.add(level);
-      
-      await Future.delayed(const Duration(milliseconds: 10));
-    }
-
-    _cachedLevels = levels;
-    _isGenerating = false;
-    return levels;
+    onStatus?.call('Generating level $levelNumber...');
+    
+    final config = _getDifficultyForLevel(levelNumber);
+    
+    final level = await _generator.generateLevel(
+      levelId: levelNumber,
+      rows: config['rows']!,
+      cols: config['cols']!,
+      arrowCount: config['arrows']!,
+    );
+    
+    _cachedLevels[levelNumber] = level;
+    return level;
   }
 
-  static void clearCache() {
-    _cachedLevels = null;
+  static void clearLevelCache(int levelNumber) {
+    _cachedLevels.remove(levelNumber);
   }
 
-  static bool get hasCachedLevels => _cachedLevels != null;
+  static void clearAllCache() {
+    _cachedLevels.clear();
+  }
+
+  static bool hasLevelCached(int levelNumber) {
+    return _cachedLevels.containsKey(levelNumber);
+  }
+
+  static Map<String, int> _getDifficultyForLevel(int level) {
+    final arrows = level;
+    
+    int gridSize;
+    if (level <= 3) {
+      gridSize = 4;
+    } else if (level <= 6) {
+      gridSize = 5;
+    } else if (level <= 10) {
+      gridSize = 6;
+    } else if (level <= 15) {
+      gridSize = 7;
+    } else {
+      gridSize = 8;
+    }
+    
+    final maxArrows = gridSize * gridSize - 1;
+    final actualArrows = arrows > maxArrows ? maxArrows : arrows;
+    
+    return {
+      'rows': gridSize,
+      'cols': gridSize,
+      'arrows': actualArrows,
+    };
+  }
+
+  static int get totalLevels => 20;
 }
